@@ -1,0 +1,87 @@
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'cgv-api-jwt-generator/**'
+
+name: Build/Deploy new Revision
+env:
+  DOCKER_ROOT_IMAGE_NAME: cgv-api-jwt-generator:${{github.sha}}
+  DOCKER_IMAGE_NAME: gcr.io/targaren-cli/jwt-generator/generator:${{github.sha}}
+  REGION: ${{ secrets.REGION }}
+  PROJECT_ID: ${{ secrets.PROJECT_ID }}
+
+defaults:
+  run:
+    working-directory: cgv-api-jwt-generator
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v2
+
+      - name: detup google cloud sdk
+        uses: google-github-actions/setup-gcloud@v0.2.0
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+          service_account_key: ${{ secrets.GCP_CREDENTIALS_PIPELINE }}
+          export_default_credentials: true  # Set to true to authenticate the Cloud Run action
+
+      - name: authorize docker push
+        run: gcloud auth configure-docker
+
+      - name: build image
+        run: docker build -t ${{env.DOCKER_ROOT_IMAGE_NAME}} .
+
+      - name: tag image
+        run: docker tag ${{env.DOCKER_ROOT_IMAGE_NAME}} ${{env.DOCKER_IMAGE_NAME}}
+
+      - name: push image
+        run: docker push ${{env.DOCKER_IMAGE_NAME}}
+
+  deploy-revision:
+      needs: [build]
+      runs-on: ubuntu-latest
+      environment: production
+      env:
+        TF_VAR_jwt_audience: cloudrun:*
+        TF_VAR_service_account_client_email: ${{ secrets.SERVICE_ACCOUNT_CLIENT_EMAIL }}
+        TF_VAR_service_account_private_key: ${{ secrets.SERVICE_ACCOUNT_PRIVATE_KEY }}
+        TF_VAR_container_registry_docker_image: gcr.io/targaren-cli/jwt-generator/generator:${{ github.sha }}
+        TF_VAR_project_id: ${{ secrets.PROJECT_ID }}
+        GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
+
+      defaults:
+        run:
+          shell: bash
+          working-directory: cgv-api-jwt-generator/terraform
+
+      steps:
+
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
+        with:
+          cli_config_credentials_hostname: app.terraform.io
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+          
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Validate
+        run: terraform validate
+        
+      - name: Terraform Format
+        run: terraform fmt && terraform fmt -check
+
+      - name: Terraform Plan
+        run: terraform plan
+
+      - name: Terraform Apply
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: terraform apply -auto-approve
