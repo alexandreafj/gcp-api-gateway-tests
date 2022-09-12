@@ -3,18 +3,18 @@ on:
     branches:
       - main
     paths:
-      - 'cgv-api-jwt-generator/**'
+      - 'api-jwt-generator/**'
 
 name: Build/Deploy new Revision
 env:
-  DOCKER_ROOT_IMAGE_NAME: cgv-api-jwt-generator:${{github.sha}}
+  DOCKER_ROOT_IMAGE_NAME: api-jwt-generator:${{github.sha}}
   DOCKER_IMAGE_NAME: gcr.io/targaren-cli/jwt-generator/generator:${{github.sha}}
   REGION: ${{ secrets.REGION }}
   PROJECT_ID: ${{ secrets.PROJECT_ID }}
 
 defaults:
   run:
-    working-directory: cgv-api-jwt-generator
+    working-directory: api-jwt-generator
 
 jobs:
   build:
@@ -57,7 +57,7 @@ jobs:
       defaults:
         run:
           shell: bash
-          working-directory: cgv-api-jwt-generator/terraform
+          working-directory: api-jwt-generator/terraform
 
       steps:
 

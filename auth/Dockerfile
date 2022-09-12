@@ -8,8 +8,8 @@ update-ca-certificates && wget -O /usr/local/bin/dumb-init https://github.com/Ye
 echo "37f2c1f0372a45554f1b89924fbb134fc24c3756efaedf11e07f599494e0eff9  /usr/local/bin/dumb-init" | sha256sum -c - && \
 chmod 755 /usr/local/bin/dumb-init;
 
-WORKDIR /cgv-api-auth
-RUN chown -R node /cgv-api-auth
+WORKDIR /api-auth
+RUN chown -R node /api-auth
 
 USER node
 

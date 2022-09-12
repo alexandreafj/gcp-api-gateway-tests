@@ -3,7 +3,7 @@ terraform {
     organization = "alexandre"
 
     workspaces {
-      name = "cgv-api-jwt-generator"
+      name = "api-jwt-generator"
     }
   }
 }
@@ -45,7 +45,7 @@ resource "google_secret_manager_secret_iam_member" "secret-access" {
 
 resource "google_cloud_run_service" "default" {
   provider = google-beta
-  name     = "cgv-api-jwt-generator"
+  name     = "api-jwt-generator"
   location = "us-central1"
 
   template {

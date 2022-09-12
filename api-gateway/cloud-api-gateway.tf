@@ -3,7 +3,7 @@ terraform {
     organization = "alexandre"
 
     workspaces {
-      name = "cgv-api-gateway"
+      name = "api-gateway"
     }
   }
 }
@@ -25,7 +25,7 @@ resource "google_api_gateway_api_config" "terraform_api_gateway" {
   openapi_documents {
     document {
       path     = "spec.yaml"
-      contents = filebase64("./cgv-api-gateway.yaml")
+      contents = filebase64("./api-gateway.yaml")
     }
   }
   lifecycle {

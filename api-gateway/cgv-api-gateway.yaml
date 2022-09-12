@@ -120,7 +120,7 @@ paths:
     post:
       operationId: generate
       x-google-backend:
-        address: https://cgv-api-jwt-generator-bpt6mfm6tq-uc.a.run.app
+        address: https://api-jwt-generator-bpt6mfm6tq-uc.a.run.app
       parameters:
         - in: "body"
           name: "user"
