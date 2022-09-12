@@ -1,11 +1,11 @@
 version: '3'
 services:
 
-  cgv-api-jwt-generator:
-    image: cgv-api-jwt-generator
-    container_name: cgv-api-jwt-generator
+  api-jwt-generator:
+    image: api-jwt-generator
+    container_name: api-jwt-generator
     build:
-      context: ./cgv-api-jwt-generator
+      context: ./api-jwt-generator
       dockerfile: Dockerfile.dev
     environment:
       PORT: 8080
@@ -14,9 +14,9 @@ services:
       SERVICE_ACCOUNT_PRIVATE_KEY:
     ports:
       - 8080:8080
-  cgv-api-auth:
-    image: cgv-api-auth
-    container_name: cgv-api-auth
+  api-auth:
+    image: api-auth
+    container_name: api-auth
     build:
       context: ./auth
       dockerfile: Dockerfile.dev
